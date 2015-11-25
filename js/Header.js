@@ -1,0 +1,4 @@
+
+var Header = React.createClass({
+
+});
