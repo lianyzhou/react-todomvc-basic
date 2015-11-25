@@ -2,15 +2,27 @@ var React = require("react");
 var Header = require("./Header.react");
 var Center = require("./Center.react");
 var Footer = require("./Footer.react");
-var Store = requrie("./Store");
+var Store = require("./Store");
+
+
+
 
 var App = React.createClass({
+    getStateData : function() {
+        return {
+            todos : Store.get_todos()
+        };
+    },
+    getInitialState : function() {
+        return this.getStateData()
+    },
     render : function() {
-        var todos = this.getStates();
         return (
-            <Header/>
-            <Center todos={todos} />
-            <Footer/>
+            <div>
+                <Header></Header>
+                <Center todos={this.state.todos}></Center>
+                <Footer></Footer>
+            </div>
         );
     }
 });

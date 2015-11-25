@@ -1,4 +1,0 @@
-
-var Header = React.createClass({
-
-});
