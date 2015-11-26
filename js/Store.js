@@ -7,20 +7,36 @@
  * }
  */
 var todoList = [];
+var type = "all";
 var idx = new Date().getTime();
-var store = {
+var listeners = {};
+var EventEmitter = require("events").EventEmitter;
+var objectAssign = require("object-assign");
+
+var store = objectAssign({}, EventEmitter.prototype , {
     add_todo : function(text) {
-        list.unshift({
+        todoList.unshift({
             id : idx++,
             todo : text,
             completed : false
         });
     },
     remove_todo : function(id) {
-        list = list.filter(function(obj) {
+        todoList = todoList.filter(function(obj) {
             if(obj.id != id) {
                 return true;
             }
+        });
+        console.log(todoList);
+    },
+    clearSelected : function() {
+        var completed = this.get_todos("completed");
+        var idArr = [];
+        completed.forEach(function(obj) {
+            idArr.push(obj.id + '');
+        });
+        todoList = todoList.filter(function(obj){
+            return idArr.indexOf(obj.id + '') < 0
         });
     },
     edit_todo : function(todo) {
@@ -33,15 +49,15 @@ var store = {
     },
     complete : function(id) {
         todoList.find(function(obj) {
-            if(todo.id == id) {
+            if(obj.id == id) {
                 obj.completed = !obj.completed;
                 return true;
             }
         });
     },
-    filter : function(type) {
+    get_todos : function(forceType) {
         var fn ;
-        switch(type) {
+        switch(forceType || type) {
             case 'all':
                 fn = function() {
                     return true;
@@ -49,19 +65,37 @@ var store = {
                 break;
             case 'active':
                 fn = function(obj) {
-                    return obj.completed;
+                    return !obj.completed;
                 };
                 break;
             case 'completed':
                 fn = function(obj) {
-                    return !obj.completed;
+                    return obj.completed;
                 };
                 break;
         }
-        todoList = todoList.filter(fn);
+        var list = todoList.filter(fn);
+        return list;
     },
-    get_todos : function() {
-        return todoList;
+    get_uncomplete : function() {
+        var list = store.get_todos("all");
+        list = list.filter(function(obj) {
+            return !obj.completed;
+        });
+        return list;
+    },
+    getType : function() {
+        return type;
+    },
+    setType : function(t) {
+        type = t;
+    },
+    addChangeListener : function(fn) {
+        this.on("change" , fn);
+    },
+    emitChange : function() {
+        this.emit("change");
     }
-};
+});
+
 module.exports = store;
